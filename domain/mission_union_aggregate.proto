@@ -1,0 +1,64 @@
+syntax = "proto3.web3.dsl";
+
+import "command.proto";
+import "event.proto";
+
+aggregate MissionUnion
+{
+    authority default() => consenus(state.Members)
+
+    on StartMissionUnion(c)
+    {   
+        emit MissionUnionCreated(mission = c.mission)
+        foreach(m in c.members) {
+            emit MemberAdded(id = m)
+        }
+        for (i = 0; i < c.rules; i++) {
+            emit RuleSet(id = i, rule = c.rules[i])
+        }
+    }
+
+    on AddMember(c)
+    {
+        if (state.Members has c.id) {
+            error "Member is already added to the Mission Union"
+        }
+        emit MemberAdded(id = c.id)
+    }
+
+    on RemoveMember(c)
+    {
+        if (not state.Members has c.id) {
+            error "Member is not in the Mission Union"
+        }
+        emit MemberRemoved(id = c.id)
+    }
+
+    on SetRule(c)
+    {
+        emit RuleSet(id = c.id, rule = c.rule)
+    }
+}
+
+state MissionUnion 
+{   
+    string mission;
+    disctionary<uint64,bytes> Members;
+    disctionary<uint64,string> Rules;
+
+    when MissionUnionCreated(e) {
+        mission = e.mission
+    }
+    
+    when MemberAdded(e) {
+        Member.add(e.id, e.public_key)
+    }
+
+    when MemberRemoved(e) {
+        Members.remove(e.id)
+    }
+
+    when RuleSet(e){
+        Rules[e.id] = e.rule
+    }
+}

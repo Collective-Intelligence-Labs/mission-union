@@ -1,0 +1,67 @@
+syntax = "proto3.web3.dsl";
+
+import "./domain/event.proto";
+
+readmodel {
+    MissionUnionView {
+        id: uint64,
+        mission: string,
+        created: datetime,
+        members: list<uint64>,
+        rules: list<RuleView>
+        proposals: list<ProposalView>
+    }
+
+    MemberView {
+        id: uint64,
+        added: datetime
+    }
+
+    RuleView {
+        id: uint64
+        rule: string
+        added: datetime
+    }
+
+    ProposalView {
+        id: uint64,
+        initiator: uint64,
+        proposal: string,
+        accepted: bool,
+        initiated: datetime,
+        accepted_at: datetime
+    }
+
+    when MissionUnionCreated(e) {
+        db<MissionUnionView>.create({
+            id = e.id,
+            mission = e.mission,
+            created = now
+        })
+    }
+    
+    when MemberAdded(e) {
+        var union = db<MissionUnionView>.get(e.aggregate_id)
+        union.members.add(new MemberView{
+            id = e.id,
+            added = now
+        })
+        union.Save()
+    }
+
+    when MemberRemoved(e) {
+        var union = db<MissionUnionView>.get(e.aggregate_id)
+        union.members.delete(x=> x.id == e.id)
+        union.Save()
+    }
+
+    when RuleSet(e){
+        var union = db<MissionUnionView>.get(e.aggregate_id)
+        union.rules.AddOrUpdate(x=> x.id == e.id, r => {
+            r.id = id
+            r.rule = rule
+            r.added = now
+        });
+        union.Save()
+    }
+}

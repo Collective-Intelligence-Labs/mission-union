@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+enum EventType {
+  INITIALIZED = 0;
+  IDENTITY_REGISTRED = 1;
+  MISSION_UNION_STARTED = 2;
+  MEMBER_ADDED = 3;
+  MEMBER_REMOVED = 4;
+  RULE_SET = 5;
+};
+
+message Event {
+  uint64 event_id = 1;
+  EventType type = 2;
+  bytes payload = 3;
+  uint64 aggregate_id = 4;
+  repeated uint64 senders = 5;
+  uint64 application_id = 6;
+  uint64 command_id = 7;
+}
+
+message IdentityRegistred {
+  bytes public_key = 1;
+}
+
+message MissionUnionCreated {
+  string mission = 1;
+}
+
+message MemberAdded {
+  uint64 id = 1;
+  bytes public_key = 2;
+}
+
+message MemberRemoved {
+  uint64 id = 1;
+}
+
+message RuleSet {
+  uint64 id = 1;
+  string rule = 2;
+}
