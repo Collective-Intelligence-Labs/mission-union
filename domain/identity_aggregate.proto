@@ -1,0 +1,22 @@
+syntax = "proto3.web3.dsl";
+
+import "command.proto";
+import "event.proto";
+
+aggregate Identity
+{
+    on RegisterIdentity(c)
+    {
+        emit IdentityRegistred(public_key = c.public_key)
+    }
+}
+
+state IdentityState 
+{
+    bytes public_key;
+
+    when IdentityRegistred(e)
+    {
+        public_key = e.public_key
+    }
+}

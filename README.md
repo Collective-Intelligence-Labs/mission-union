@@ -21,3 +21,14 @@ go into Proto files folder
 protoc --js_out=import_style=commonjs,binary:./ event.proto
 
 protoc --js_out=import_style=commonjs,binary:./ command.proto
+
+## Run documentation server
+
+To generate docs
+
+structurizr-site-generatr generate-site -w workspace.dsl
+
+
+To run website
+
+structurizr-site-generatr serve -w workspace.dsl

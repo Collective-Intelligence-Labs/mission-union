@@ -3,6 +3,12 @@ syntax = "proto3.web3.dsl";
 import "./domain/event.proto";
 
 readmodel {
+
+    IdentityView {
+        id: uint64,
+        public_key: bytes
+    }
+
     MissionUnionView {
         id: uint64,
         mission: string,
@@ -32,9 +38,16 @@ readmodel {
         accepted_at: datetime
     }
 
+    when IdentityRegistred(e) {
+        db<IdentityView>.create({
+            id = e.aggregate_id,
+            public_key = e.public_key
+        })
+    }
+
     when MissionUnionCreated(e) {
         db<MissionUnionView>.create({
-            id = e.id,
+            id = e.aggregate_id,
             mission = e.mission,
             created = now
         })
